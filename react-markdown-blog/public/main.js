@@ -2,56 +2,88 @@ const path = require("path");
 const fs = require("fs");
 
 const dirPath = path.join(__dirname, "../src/content");
- let postList = [];
-
- const getPosts = () => {
+const dirPathPages = path.join(__dirname, "../src/pages/content");
+  let postList = [];
+  let pageList = [];
+  
+const getPosts = () => {
     fs.readdir(dirPath, (err, files) => {
+        if (err) {
+            return console.log("Failed to list contents of directory: " + err)
+        }
+        files.forEach((file, i) => {
+            let obj = {}
+            let post
+            fs.readFile(`${dirPath}/${file}`, "utf8", (err, contents) => {
+                const getMetadataIndices = (acc, elem, i) => {
+                    if (/^---/.test(elem)) {
+                        acc.push(i)
+                    }
+                    return acc
+                }
+                const parseMetadata = ({lines, metadataIndices}) => {
+                    if (metadataIndices.length > 0) {
+                        let metadata = lines.slice(metadataIndices[0] + 1, metadataIndices[1])
+                        metadata.forEach(line => {
+                            obj[line.split(": ")[0]] = line.split(": ")[1]
+                        })
+                        return obj
+                    }
+                }
+                const parseContent = ({lines, metadataIndices}) => {
+                    if (metadataIndices.length > 0) {
+                        lines = lines.slice(metadataIndices[1] + 1, lines.length)
+                    }
+                    return lines.join("\n")
+                }
+                const lines = contents.split("\n")
+                const metadataIndices = lines.reduce(getMetadataIndices, [])
+                const metadata = parseMetadata({lines, metadataIndices})
+                const content = parseContent({lines, metadataIndices})
+                const date = new Date(metadata.date)
+                const timestamp = date.getTime() / 1000
+                post = {
+                    id: timestamp,
+                    title: metadata.title ? metadata.title : "No title given",
+                    author: metadata.author ? metadata.author : "No author given",
+                    date: metadata.date ? metadata.date : "No date given",
+                    content: content ? content : "No content given",
+                }
+                postList.push(post)
+                if (i === files.length - 1) {
+                    const sortedList = postList.sort ((a, b) => {
+                        return a.id < b.id ? 1 : -1
+                    })
+                    let data = JSON.stringify(sortedList)
+                    fs.writeFileSync("src/posts.json", data)
+                }
+                
+            })
+        })
+    })
+    return 
+}
+
+ 
+ const getPages = () => {
+    fs.readdir(dirPathPages, (err, files) => {
      if (err) {
        return console.log("Failed to list contents of directory: " + err);
      }
      
      files.forEach((file, i) => {
-       let obj = {};
-       let post;
+        
+       let page;
 
-       fs.readFile(`${dirPath}/${file}`, "utf8", (err, contents) => {
-         const getMetaDataIndex = (acc, element, i) => {
-           if (/^---/.test(element)) {
-             acc.push(i);
-           }
-           return acc;
-         }
-        const parseMetaData = ({lines, metaDataIndex}) => {
-          if(metaDataIndex.length > 0) {
-            let metaData = lines.slice(metaDataIndex[0] + 1, metaDataIndex[1]);
-            metaData.forEach(line => {
-              obj[line.split(": ")[0]] = line.split(": ")[1]
-            });
-            return obj;
-          }
+       fs.readFile(`${dirPathPages}/${file}`, "utf8", (err, contents) => {
+        
+        page = {
+          content: contents
         }
-        const parseContent = ({lines, metaDataIndex}) => {
-          if(metaDataIndex.length > 0) {
-            lines = lines.slice(metaDataIndex[1] + 1, lines.length)
-          }
-          return lines.join("\n");
-        }
-        const lines = contents.split("\n");
-        const metaDataIndex = lines.reduce(getMetaDataIndex, [])
-        const metaData = parseMetaData({lines, metaDataIndex});
-        const content = parseContent({lines, metaDataIndex});
-
-        post = {
-          id: i + 1,
-          title: metaData.title ? metaData.title : "No Title Given",
-          date: metaData.date ? metaData.date : "No Date Given",
-          content: content ? content : "No Content!"
-        }
-        postList.push(post);
-        if (i === files.length - 1) {
-          let data = JSON.stringify(postList);
-          fs.writeFileSync("src/posts.json", data);
-        }
+        pageList.push(page);
+          let data = JSON.stringify(pageList);
+          fs.writeFileSync("src/pages.json", data);
+        
         
        });
      });
@@ -61,3 +93,4 @@ const dirPath = path.join(__dirname, "../src/content");
  }
 
  getPosts();
+ getPages();

@@ -2,9 +2,7 @@ const path = require("path");
 const fs = require("fs");
 
 const dirPath = path.join(__dirname, "../src/content");
-const dirPathPages = path.join(__dirname, "../src/pages/content");
   let postList = [];
-  let pageList = [];
   
 const getPosts = () => {
     fs.readdir(dirPath, (err, files) => {
@@ -45,18 +43,21 @@ const getPosts = () => {
                 post = {
                     id: timestamp,
                     title: metadata.title ? metadata.title : "No title given",
-                    author: metadata.author ? metadata.author : "No author given",
                     date: metadata.date ? metadata.date : "No date given",
+                    overview: metadata.overview ? metadata.overview : "No overview Given",
                     content: content ? content : "No content given",
                 }
-                postList.push(post)
-                if (i === files.length - 1) {
-                    const sortedList = postList.sort ((a, b) => {
-                        return a.id < b.id ? 1 : -1
-                    })
-                    let data = JSON.stringify(sortedList)
-                    fs.writeFileSync("src/posts.json", data)
-                }
+                setTimeout(() => {
+
+                    postList.push(post)
+                    if (i === files.length - 1) {
+                        const sortedList = postList.sort ((a, b) => {
+                            return a.id < b.id ? 1 : -1
+                        })
+                        let data = JSON.stringify(sortedList)
+                        fs.writeFileSync("src/posts.json", data)
+                    }
+                }, 500)
                 
             })
         })
@@ -65,32 +66,32 @@ const getPosts = () => {
 }
 
  
- const getPages = () => {
-    fs.readdir(dirPathPages, (err, files) => {
-     if (err) {
-       return console.log("Failed to list contents of directory: " + err);
-     }
+//  const getPages = () => {
+//     fs.readdir(dirPathPages, (err, files) => {
+//      if (err) {
+//        return console.log("Failed to list contents of directory: " + err);
+//      }
      
-     files.forEach((file, i) => {
+//      files.forEach((file, i) => {
         
-       let page;
+//        let page;
 
-       fs.readFile(`${dirPathPages}/${file}`, "utf8", (err, contents) => {
+//        fs.readFile(`${dirPathPages}/${file}`, "utf8", (err, contents) => {
         
-        page = {
-          content: contents
-        }
-        pageList.push(page);
-          let data = JSON.stringify(pageList);
-          fs.writeFileSync("src/pages.json", data);
+//         page = {
+//           content: contents
+//         }
+//         pageList.push(page);
+//           let data = JSON.stringify(pageList);
+//           fs.writeFileSync("src/pages.json", data);
         
         
-       });
-     });
-   });
+//        });
+//      });
+//    });
 
    
- }
+//  }
 
  getPosts();
- getPages();
+//  getPages();

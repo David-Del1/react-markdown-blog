@@ -1,0 +1,37 @@
+.Post {
+  height: 100%;
+}
+
+.Post .meta-container {
+  margin: 20px 0;
+}
+
+.Post .post-title {
+  font-size: 2rem;
+  text-align: center;
+  color: #313638;
+}
+
+.Post .post-date {
+  text-align: center;
+  opacity: 0.5;
+}
+
+.Post .post-content {
+  text-align: left;
+  padding: 0 70px;
+  width: 100%;
+  font-size: 1.4rem;
+  line-height: 1.4;
+  font-family: 'Mate SC', serif;
+  font-weight: 40;
+}
+
+.Post .post-content::first-letter {
+  font-size: 60px;
+  font-weight: 600;
+  margin: 0 1px;
+  font-family: serif;
+  line-height: 0;
+  color: #313638;
+}

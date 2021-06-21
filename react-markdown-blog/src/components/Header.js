@@ -5,11 +5,12 @@ import { Link } from "react-router-dom";
 function Header() {
   return (
     <div className="Header">
-      <h1>David Anthony</h1>
-      <Link to="/">Home</Link>
-      <Link to="/about">About</Link>
+      <Link to="/">
+        <h1>David Anthony</h1>
+      </Link>
+      
     </div>
   );
 }
 
-export default Header
+export default Header;
